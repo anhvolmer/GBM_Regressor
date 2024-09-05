@@ -20,8 +20,9 @@ registered party,
 and race
 
 
-Installation 
+Installation and Usage
 
+Python 3.12.5
 -sklearn
 -matplotlib
 -numpy
