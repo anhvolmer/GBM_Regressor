@@ -1,9 +1,9 @@
-# %% [markdown]
 # Setting up my environment
 
-# %%
+# import libraries
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn import datasets, ensemble
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import mean_squared_error
@@ -12,12 +12,8 @@ from sklearn.utils import Bunch
 from sklearn.utils.validation import _num_samples
 from sklearn.model_selection import train_test_split
 
-
-
-# %% [markdown]
 # Pulling in the data - two separate files, x: independent variables (without headers), y: dependent variable (without headers)
 
-# %%
 data_filename = "data/voting/voting_data.csv"
 target_filename = "data/voting/y.csv"
 
@@ -44,19 +40,17 @@ voting = Bunch(
     data_module=DATA_MODULE
 )
 
-# %%
 # Assigning the dimensional data and target vector from the voting bunch
 # X = matrix with the dimensional data
 # y = vector with target data 
 X, y = voting.data, voting.target
 
-# %%
 # Split the dataset into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=13
 )
 
-# %%
+# Setting model parameters and running GBM
 params = {
     "loss": "squared_error",  # The loss function to be optimized. Default is "squared_error".
     "learning_rate": 0.01,  # The learning rate shrinks the contribution of each tree. Default is 0.1.
@@ -87,13 +81,10 @@ reg.fit(X_train, y_train)
 # Predict continuous outputs on the test set
 y_pred = reg.predict(X_test)
 
-
 mse = mean_squared_error(y_test, reg.predict(X_test))
 print("The mean squared error (MSE) on test set: {:.4f}".format(mse))
 
-# %%
-import numpy as np
-import matplotlib.pyplot as plt
+# Setting up data to create a confusion matrix
 from sklearn import ensemble
 from sklearn.metrics import mean_squared_error, roc_curve, auc
 from sklearn.model_selection import train_test_split
@@ -102,7 +93,7 @@ from sklearn.datasets import make_regression
 threshold = 0.43
 y_test_binary = (y_test > threshold).astype(int)
 
-# Calculate ROC curve and AUC score using the continuous predictions
+# Calculate ROC curve and AUC score using the continuous variable predictions
 fpr, tpr, thresholds = roc_curve(y_test_binary, y_pred)
 roc_auc = auc(fpr, tpr)
 
@@ -118,8 +109,6 @@ plt.title('ROC Curve for Regression Model with Threshold at 0.43')
 plt.legend(loc='lower right')
 plt.show()
 
-
-# %%
 # Combine the predicted scores and the binary actual outcomes into a DataFrame
 df = pd.DataFrame({'Score': y_pred, 'Actual': y_test_binary})
 
@@ -173,8 +162,6 @@ print(y_test[:10])
 print(y_pred[:10])
 
 # %%
-import pandas as pd
-import numpy as np
 from sklearn.decomposition import FactorAnalysis
 import matplotlib.pyplot as plt  # Use matplotlib.pyplot for plotting
 from sklearn.preprocessing import StandardScaler
@@ -236,11 +223,6 @@ plt.legend()
 plt.show()
 
 
-# %%
-# Import necessary libraries
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
@@ -289,12 +271,9 @@ plt.yticks(fontsize=12)
 
 plt.show()
 
-
-# %%
 # Confusion matrix
 from sklearn.metrics import confusion_matrix
 
-# %%
 # Create a cutoff for predictions so that I can see acuracy
 cutoff = .43
 
@@ -316,15 +295,13 @@ cm_df = pd.DataFrame(cm, index=['Actual Not Likely to Vote (0)', 'Actual Likely 
 print("Confusion Matrix with Labels:")
 print(cm_df)
 
-# %%
+# 
 y_pred_binary
 
-# %%
 # Print the confusion matrix
 print("Confusion Matrix:")
 print(cm)
 
-# %%
 # Confusion matrix values
 TP = cm[1][1]
 FP = cm[0][1]
@@ -347,14 +324,6 @@ print(f"Recall: {recall:.4f}")
 f1_score = 2 * (precision * recall) / (precision + recall)
 print(f"F1 Score: {f1_score:.4f}")
 
-
-# %%
-import pandas as pd
-
-# Example data: Replace with your actual data
-# y_pred should be the predicted probabilities from your model
-# y_test should be the actual binary outcomes (1 for "Yes", 0 for "No")
-# Let's assume y_pred and y_test are already defined
 
 # Convert the data to a DataFrame
 df = pd.DataFrame({'Score': y_pred, 'Actual': y_test})
@@ -401,111 +370,5 @@ result_df = pd.DataFrame({
 print(result_df)
 
 
-# %%
-from geopy.geocoders import Nominatim
-import requests
-
-# %%
-def getCensusTract(address, geolocator):
-    # Initialize the geocoder
-    # geolocator = Nominatim(user_agent="anhVol_exercise")
-
-    # Geocode an address
-    location = geolocator.geocode(address)
-
-    # Print the results
-    if location:
-        #print(f"Address: {address}")
-        #print(f"Latitude: {location.latitude}, Longitude: {location.longitude}")
-        
-        url = f"https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x={location.longitude}&y={location.latitude}&benchmark=Public_AR_Current&vintage=Current_Current&format=json"
-
-        # Send request to the Census Bureau Geocoding API
-        response = requests.get(url)
-
-        # Parse the JSON response
-        if response.status_code == 200:
-            data = response.json()
-            census_tract = data['result']['geographies']['Census Tracts'][0]['GEOID']
-            # print(f"Census Tract: {census_tract}")
-            return census_tract
-        else:
-            print("Error in API request")
-    else:
-        print("Address not found")
-    return ""   
-
-# %%
-#Asian group by
-X_test_df = pd.DataFrame(X_test)
-X_AfAm = X_test_df[X_test_df[3]==2]
-Y_AfAm  = reg.predict(X_AfAm)
-Y_AfAm.mean()
-
-# %%
-#AfAm group by
-X_test_df = pd.DataFrame(X_test)
-X_AfAm = X_test_df[X_test_df[3]==4]
-Y_AfAm  = reg.predict(X_AfAm)
-Y_AfAm.mean()
-
-# %%
-#Hispanic Group by
-
-X_test_df = pd.DataFrame(X_test)
-X_AfAm = X_test_df[X_test_df[3]==3]
-Y_AfAm  = reg.predict(X_AfAm)
-Y_AfAm.mean()
-
-# %%
-#native american
-X_test_df = pd.DataFrame(X_test)
-X_AfAm = X_test_df[X_test_df[3]==5]
-Y_AfAm  = reg.predict(X_AfAm)
-Y_AfAm.mean()
-
-# %%
-#White group by
-X_test_df = pd.DataFrame(X_test)
-X_AfAm = X_test_df[X_test_df[3]==1]
-Y_AfAm  = reg.predict(X_AfAm)
-Y_AfAm.mean()
-
-# %%
-latlongSamples = [[35.52276,-95.495301], [35.14516,-96.670911], [35.49697,-94.867139], [36.43693,-99.429631], [36.757,-98.36219], [36.75748,-98.36361], [36.75745,-98.354379], [36.692879,-98.382759], [36.75367,-98.354519], [36.87844,-98.36009], [36.783139,-98.33764], [36.7596,-98.35297], [36.75525,-98.35548], [36.75437,-98.35158], [36.751349,-98.35292], [36.751799,-98.354189], [36.7504,-98.35613], [36.74849,-98.35538], [36.76031,-98.351599], [36.753521,-98.354652], [36.75963,-98.35382], [36.74991,-98.35486], [36.752449,-98.35546], [36.74894,-98.35105], [36.749703,-98.355602], [36.75427,-98.35619], [36.75036,-98.35104], [36.75123,-98.35489], [36.75438,-98.3581], [36.75698,-98.36204], [36.75128,-98.357509], [36.75338,-98.36001], [36.75541,-98.35973], [36.75748,-98.36092], [36.76511,-98.35788], [36.75512,-98.35882], [36.75633,-98.36165], [36.75196,-98.35752], [36.760329,-98.34911], [36.75512,-98.3581], [36.75295,-98.357559], [36.75748,-98.3613], [36.756499,-98.364309], [36.74455,-98.35798], [36.75193,-98.36088], [36.74447,-98.358669], [36.746919,-98.35607], [36.748059,-98.34313], [36.74986,-98.35803], [36.74722,-98.356619]]
-
-for latlongSample in latlongSamples:
-    url = f"https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x={latlongSample[1]}&y={latlongSample[0]}&benchmark=Public_AR_Current&vintage=Current_Current&format=json"
-
-    # Send request to the Census Bureau Geocoding API
-    response = requests.get(url)
-
-    # Parse the JSON response
-    if response.status_code == 200:
-        data = response.json()
-        census_tract = data['result']['geographies']['Census Tracts'][0]['GEOID']
-        print(f"Census Tract: {census_tract}")
-    else:  
-        print(f"Error: {response.status_code}")
-
-
-# %%
-latlongSamples = [[35.52276,-95.495301], [35.14516,-96.670911], [35.49697,-94.867139], [36.43693,-99.429631], [36.757,-98.36219], [36.75748,-98.36361], [36.75745,-98.354379], [36.692879,-98.382759], [36.75367,-98.354519], [36.87844,-98.36009], [36.783139,-98.33764], [36.7596,-98.35297], [36.75525,-98.35548], [36.75437,-98.35158], [36.751349,-98.35292], [36.751799,-98.354189], [36.7504,-98.35613], [36.74849,-98.35538], [36.76031,-98.351599], [36.753521,-98.354652], [36.75963,-98.35382], [36.74991,-98.35486], [36.752449,-98.35546], [36.74894,-98.35105], [36.749703,-98.355602], [36.75427,-98.35619], [36.75036,-98.35104], [36.75123,-98.35489], [36.75438,-98.3581], [36.75698,-98.36204], [36.75128,-98.357509], [36.75338,-98.36001], [36.75541,-98.35973], [36.75748,-98.36092], [36.76511,-98.35788], [36.75512,-98.35882], [36.75633,-98.36165], [36.75196,-98.35752], [36.760329,-98.34911], [36.75512,-98.3581], [36.75295,-98.357559], [36.75748,-98.3613], [36.756499,-98.364309], [36.74455,-98.35798], [36.75193,-98.36088], [36.74447,-98.358669], [36.746919,-98.35607], [36.748059,-98.34313], [36.74986,-98.35803], [36.74722,-98.356619]]
-
-for latlongSample in latlongSamples:
-    print(f"https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x={latlongSample[1]}&y={latlongSample[0]}&benchmark=Public_AR_Current&vintage=Current_Current&format=json")
-
-# %%
-# Initialize the geocoder
-geolocator = Nominatim(user_agent="anhVol_exercise")
-
-# %%
-# Geocode an address
-address = "403 Altaloma Ave, Orlando, FL"
-
-
-censusTract = getCensusTract(address, geolocator)
-
-print(f"Census Tract: {censusTract}")
 
 
